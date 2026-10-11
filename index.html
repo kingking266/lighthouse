@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="灯塔">
+<meta name="theme-color" content="#0d0d0f">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230d0d0f'/%3E%3Ccircle cx='90' cy='75' r='28' fill='%23e8c46a'/%3E%3Crect x='74' y='103' width='32' height='62' fill='%23e8c46a'/%3E%3C/svg%3E">
+<title>灯塔 · 互动小说</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:#0d0d0f;color:#d0d0d6;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    overflow:hidden;-webkit-font-smoothing:antialiased}
+  #app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:0 auto;
+    padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .page{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  #menu .inner{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 32px;position:relative}
+  .title{font-size:44px;font-weight:200;letter-spacing:14px;text-align:center;color:#e8c46a;margin-bottom:14px}
+  .subtitle{font-size:12px;letter-spacing:3px;text-align:center;color:#555;margin-bottom:60px}
+  .menu-btns{display:flex;flex-direction:column;gap:12px}
+  .btn{padding:16px;border-radius:10px;border:1px solid #2a2a32;background:#16161b;
+    color:#888;font-size:15px;letter-spacing:2px;font-family:inherit;cursor:pointer;transition:all .2s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:#2a3a2a;border-color:#4a6a4a;color:#a8d8a8;font-weight:600}
+  .credit{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-size:11px;color:#2a2a32}
+  .header{display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;border-bottom:1px solid #1a1a20;flex-shrink:0}
+  .back{background:none;border:none;color:#666;font-size:14px;font-family:inherit;
+    cursor:pointer;padding:4px;width:80px;text-align:left}
+  .header-title{font-size:13px;letter-spacing:4px;color:#888}
+  .story{flex:1;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch}
+  .story-old{color:#3a3a42;font-size:14px;line-height:1.9;margin-bottom:22px;white-space:pre-line}
+  .story-current{color:#d0d0d6;font-size:17px;line-height:1.9;white-space:pre-line}
+  .choices{padding:14px 16px;padding-bottom:calc(14px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:9px;border-top:1px solid #1a1a20;flex-shrink:0}
+  .choice{padding:14px 18px;border-radius:10px;border:1px solid #2a2a32;background:#16161b;
+    color:#b8b8c0;font-size:15px;line-height:1.5;text-align:left;font-family:inherit;
+    cursor:pointer;transition:all .15s}
+  .choice:active:not(:disabled){background:#22222a;transform:scale(.99)}
+  .choice:disabled{opacity:.35;cursor:not-allowed}
+  .choice-primary{background:#2a3a2a;border-color:#4a6a4a;color:#a8d8a8;font-weight:600;text-align:center}
+  .endings-list{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+  .ending-card{display:flex;align-items:center;gap:16px;padding:18px;
+    border-radius:12px;background:#16161b;border:1px solid #2a2a32}
+  .ending-card.locked{opacity:.4}
+  .ending-emoji{font-size:32px;flex-shrink:0}
+  .ending-name{color:#e8c46a;font-size:15px;font-weight:600;margin-bottom:4px}
+  .ending-desc{color:#888;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="menu" class="page">
+    <div class="inner">
+      <h1 class="title">灯塔</h1>
+      <p class="subtitle">一个暴风雨夜的故事</p >
+      <div class="menu-btns">
+        <button class="btn btn-primary" id="btnContinue" style="display:none">继续游戏</button>
+        <button class="btn btn-primary" id="btnNew">开始游戏</button>
+        <button class="btn" id="btnEndings">结局收集</button>
+      </div>
+      <p class="credit">互动小说 · 演示版</p >
+    </div>
+  </div>
+
+  <div id="game" class="page" style="display:none">
+    <div class="header">
+      <button class="back" id="btnBack">← 主菜单</button>
+      <span class="header-title">灯塔</span>
+      <span style="width:80px"></span>
+    </div>
+    <div class="story" id="story"></div>
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <div id="endingsPage" class="page" style="display:none">
+    <div class="header">
+      <button class="back" id="btnEndingsBack">← 返回</button>
+      <span class="header-title">结局收集册</span>
+      <span style="width:80px"></span>
+    </div>
+    <div class="endings-list" id="endingsList"></div>
+  </div>
+</div>
+
+<script>
+const START='start';
+const initialState={hasKey:false,hasFlashlight:false,hasLightKey:false,readDiary:false,savedElias:false,sentSOS:false};
+const endings={
+  light:{name:'光明',emoji:'🕯',desc:'你点亮了灯塔。'},
+  fight:{name:'对峙',emoji:'⚔️',desc:'你选择了面对。'},
+  flee:{name:'逃亡',emoji:'⛵',desc:'你活着离开了。'},
+  drown:{name:'沉没',emoji:'🌊',desc:'大海收回了它的秘密。'}
+};
+const nodes={
+  start:{text:'暴风雨在午夜达到了顶峰。你的小船撞上礁石，等你爬上岸，船已经碎成了木片。\n\n这座孤岛上只有一样东西还亮着——一座灯塔。但它的光在雨幕里忽明忽暗，像随时会熄灭。',
+    choices:[{text:'朝灯塔走去',next:'lighthouse_door'},{text:'先检查一下破船',next:'check_boat'},{text:'注意到不远处有间小屋',next:'cottage'}]},
+  check_boat:{text:'船彻底废了。龙骨断了，帆撕成了布条。你用不了多久就会明白——今晚不可能靠它离开这座岛。',
+    choices:[{text:'往灯塔走',next:'lighthouse_door'}]},
+  cottage:{text:'小屋的门虚掩着。里面没人，壁炉已经冷了。桌上摊着一本日记，最后一页被撕掉了。\n\n日记里提到：灯塔的后门钥匙藏在窗台的花盆下面。',
+    effect:s=>{s.readDiary=true;s.hasKey=true;s.hasFlashlight=true},
+    choices:[{text:'拿起钥匙和手电筒，走向灯塔',next:'lighthouse_door'}]},
+  lighthouse_door:{text:'灯塔的铁门锈迹斑斑。你推了推，门纹丝不动。\n\n雨越下越大，海浪拍在礁石上，声音像有人在低语。',
+    choices:[{text:'用力敲门',next:'knock'},{text:'绕到灯塔后面看看',next:'backdoor'}]},
+  knock:{text:'你敲了很久。没有人应答。\n\n但就在你准备放弃的时候，门缝里传来一个极轻的声音——像有人把耳朵贴在了门内侧。',
+    choices:[{text:'再敲一次',next:'knock_again'},{text:'绕到后面找入口',next:'backdoor'}]},
+  knock_again:{text:'这一次，里面彻底安静了。只有雨声。\n\n你意识到，刚才那个声音也许根本不是人发出来的。',
+    choices:[{text:'绕到后面找入口',next:'backdoor'}]},
+  backdoor:{text:'灯塔背面果然有一扇小木门，被一把旧铜锁锁着。',
+    choices:[{text:'用钥匙打开',next:'basement',require:s=>s.hasKey,hint:'需要钥匙'},{text:'从窗户爬进去',next:'hall',effect:s=>{s.climbedIn=true}}]},
+  hall:{text:'你从一扇破窗翻进灯塔。大厅里一片漆黑，空气里有一股铁锈和海水混合的味道。\n\n墙上挂着一本登记簿，地上有一段暗色的痕迹，通向楼梯下方的一扇铁门。',
+    choices:[{text:'查看登记簿',next:'register'},{text:'检查地上的痕迹',next:'blood'},{text:'直接上楼',next:'stairs'}]},
+  register:{text:'登记簿上最近的一条记录是三天前：\n\n「Elias，值夜。灯已点亮。」\n\n后面所有日期都是空白。',
+    effect:s=>{s.knowsElias=true},
+    choices:[{text:'回到大厅',next:'hall'}]},
+  blood:{text:'那不是血，是干涸的海藻和泥沙。\n\n痕迹一路通向楼梯下方的铁门——但它从里面反锁了。',
+    choices:[{text:'撬开门锁下去看看',next:'basement',require:s=>s.hasFlashlight,hint:'需要光源'},{text:'太黑了，还是先上楼',next:'stairs'}]},
+  basement:{text:'地下室比想象中更深。手电的光柱在潮湿的墙壁上晃动。\n\n在角落，你看到一个人—
